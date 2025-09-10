@@ -10,43 +10,117 @@
       font-family: monospace;
       padding: 20px;
     }
-    #output { white-space: pre-wrap; margin-bottom: 10px; }
-    #input { width: 100%; background: #000; color: #0f0; border: none; font-family: monospace; font-size: 16px; }
+    #output {
+      white-space: pre-wrap;
+      margin-bottom: 10px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    #input {
+      width: 100%;
+      background: #000;
+      color: #0f0;
+      border: none;
+      font-family: monospace;
+      font-size: 16px;
+    }
   </style>
 </head>
 <body>
-  <div id="output">telecmd — tape "help" pour commencer</div>
+  <div id="output">telecmd — tape "help" pour voir les commandes</div>
   <input id="input" autocomplete="off" autofocus />
   <script>
     const output = document.getElementById('output');
     const input = document.getElementById('input');
+
+    const print = (text) => {
+      output.innerText += "\n" + text;
+      output.scrollTop = output.scrollHeight;
+    };
+
     const cmds = {
-      help: () => print("Commandes: help, clear, echo, film"),
+      help: () => {
+        print("📖 Commandes disponibles :");
+        print("• help     → Affiche cette liste");
+        print("• clear    → Nettoie l’écran");
+        print("• echo     → Répète ton texte");
+        print("• time     → Affiche l’heure");
+        print("• whoami   → Ton nom d’utilisateur");
+        print("• joke     → Blague aléatoire");
+        print("• matrix   → Effet visuel Matrix");
+        print("• film     → Lance un mini film ASCII");
+      },
       clear: () => output.innerText = '',
       echo: args => print(args.join(' ')),
+      time: () => print(new Date().toLocaleString()),
+      whoami: () => print("Utilisateur: guest"),
+      joke: () => {
+        const jokes = [
+          "Pourquoi les développeurs aiment le café ? Parce que le débogage sans café, c’est impossible.",
+          "Il y a 10 types de personnes : ceux qui comprennent le binaire et les autres.",
+          "Mon code marche. Je ne sais pas pourquoi, mais il marche."
+        ];
+        print(jokes[Math.floor(Math.random() * jokes.length)]);
+      },
+      matrix: () => {
+        const chars = "01";
+        let count = 0;
+        const interval = setInterval(() => {
+          let line = '';
+          for (let i = 0; i < 60; i++) {
+            line += chars[Math.floor(Math.random() * chars.length)];
+          }
+          print(line);
+          if (++count > 20) clearInterval(interval);
+        }, 100);
+      },
       film: () => {
         const frames = [
-          "🚀\n   ^\n  / \\\n /___\\\n  | |\n /| |\\\n/_|_|_\\",
-          "🚀\n   ^\n  / \\\n /___\\\n  | |\n   | |\n  _|_|_"
+`🚀
+   ^
+  / \\
+ /___\\
+  | |
+ /| |\\
+/_|_|_\\`,
+`🚀
+   ^
+  / \\
+ /___\\
+  | |
+   | |
+  _|_|_`,
+`🏙️
+ _||__||__||__||_
+|_  _  _  _  _  _|
+|_||_||_||_||_||_|
+  |  |  |  |  |  
+--+--+--+--+--+--`,
+`🏙️
+ _||__||__||__||_
+|_  _  _  _  _  _|
+|_||_||_||_||_||_|
+  |  |  |  |  |  
+--+--+--+--+--+-- 
+     *`
         ];
         let i = 0;
         const interval = setInterval(() => {
-          output.innerText = frames[i++ % frames.length];
-        }, 500);
-        setTimeout(() => clearInterval(interval), 5000);
+          output.innerText += "\n\n" + frames[i++ % frames.length];
+          output.scrollTop = output.scrollHeight;
+          if (i > 10) clearInterval(interval);
+        }, 600);
       }
     };
-    function print(text) {
-      output.innerText += "\n" + text;
-    }
-    input.addEventListener('keydown', e => {
+
+    input.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         const line = input.value.trim();
         input.value = '';
-        const [cmd, ...args] = line.split(' ');
         print("> " + line);
+        const [cmd, ...args] = line.split(' ');
         if (cmds[cmd]) cmds[cmd](args);
-        else print("Commande inconnue");
+        else print("Commande inconnue. Tape 'help' pour la liste.");
       }
     });
   </script>
