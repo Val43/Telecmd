@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>telecmd</title>
+  <style>
+    body {
+      background: #000;
+      color: #0f0;
+      font-family: monospace;
+      padding: 20px;
+    }
+    #output { white-space: pre-wrap; margin-bottom: 10px; }
+    #input { width: 100%; background: #000; color: #0f0; border: none; font-family: monospace; font-size: 16px; }
+  </style>
+</head>
+<body>
+  <div id="output">telecmd — tape "help" pour commencer</div>
+  <input id="input" autocomplete="off" autofocus />
+  <script>
+    const output = document.getElementById('output');
+    const input = document.getElementById('input');
+    const cmds = {
+      help: () => print("Commandes: help, clear, echo, film"),
+      clear: () => output.innerText = '',
+      echo: args => print(args.join(' ')),
+      film: () => {
+        const frames = [
+          "🚀\n   ^\n  / \\\n /___\\\n  | |\n /| |\\\n/_|_|_\\",
+          "🚀\n   ^\n  / \\\n /___\\\n  | |\n   | |\n  _|_|_"
+        ];
+        let i = 0;
+        const interval = setInterval(() => {
+          output.innerText = frames[i++ % frames.length];
+        }, 500);
+        setTimeout(() => clearInterval(interval), 5000);
+      }
+    };
+    function print(text) {
+      output.innerText += "\n" + text;
+    }
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        const line = input.value.trim();
+        input.value = '';
+        const [cmd, ...args] = line.split(' ');
+        print("> " + line);
+        if (cmds[cmd]) cmds[cmd](args);
+        else print("Commande inconnue");
+      }
+    });
+  </script>
+</body>
+</html>
